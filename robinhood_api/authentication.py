@@ -1,5 +1,5 @@
-import engine.urls as urls
-import engine.helper as helper
+import robinhood_api.urls as urls
+import robinhood_api.helper as helper
 
 
 def login(username, password, expiresIn=86400, scope='internal'):
