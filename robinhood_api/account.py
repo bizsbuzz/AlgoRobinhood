@@ -3,6 +3,9 @@ import robinhood_api.helper as helper
 import robinhood_api.urls as urls
 import robinhood_api.stocks as stocks
 import robinhood_api.profiles as profiles
+import robinhood_api.orders as orders
+import datetime, pytz
+import dateutil.parser
 
 
 def get_all_positions(info=None):
@@ -402,6 +405,7 @@ def build_holdings():
     positions_data = get_current_positions()
     portfolios_data = profiles.load_portfolio_profile()
     accounts_data = profiles.load_account_profile()
+    local_timezone = pytz.timezone("US/Eastern")
 
     if portfolios_data['extended_hours_equity'] is not None:
         total_equity = max(float(portfolios_data['equity']), float(portfolios_data['extended_hours_equity']))
@@ -413,8 +417,9 @@ def build_holdings():
     for item in positions_data:
         instrument_data = stocks.get_instrument_by_url(item['instrument'])
         symbol = instrument_data['symbol']
+        stock_order = orders.find_orders(symbol=symbol)[0]
+        last_transaction_at = dateutil.parser.parse(stock_order['last_transaction_at']).astimezone(local_timezone)
         fundamental_data = stocks.get_fundamentals(symbol)[0]
-
         price = stocks.get_latest_price(instrument_data['symbol'])[0]
         quantity = item['quantity']
         equity = float(item['quantity']) * float(price)
@@ -436,6 +441,7 @@ def build_holdings():
         holdings[symbol].update({'id': instrument_data['id']})
         holdings[symbol].update({'pe_ratio': fundamental_data['pe_ratio']})
         holdings[symbol].update({'percentage': "{0:.2f}".format(percentage)})
+        holdings[symbol].update({'last_transaction_at': last_transaction_at})
 
     return (holdings)
 

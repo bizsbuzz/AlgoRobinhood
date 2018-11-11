@@ -106,7 +106,7 @@ def cancel_order(orderID):
     data = helper.request_post(url)
 
     if data:
-        print('Order ' + order_id + ' cancelled')
+        print('Order ' + orderID + ' cancelled')
     return (data)
 
 
