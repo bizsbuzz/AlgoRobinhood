@@ -23,11 +23,7 @@ def code_execute_condition():
     date = datetime.datetime.now()
 
     # define code execution time condition
-    # code_execute_time = (4 >= date.weekday() >= 0 and
-    #                     (date.hour >= 9 and date.minute > 30) and
-    #                     (date.hour <= 3 and date.minute > 59))
-
-    code_execute_time = (date.hour >= 21 and date.hour <= 22)
+    code_execute_time = (date.hour >= 22 and date.hour <= 23)
 
     return code_execute_time
 
@@ -35,13 +31,18 @@ def code_execute_condition():
 def main():
     # logging
     logger = logging.getLogger()
+    console_logging = logging.StreamHandler()
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s %(name)s %(message)s',
-                        datefmt='%m-%d %H:%M')
+                        filename='./log/myapp.log',
+                        filemode='w')
+    formatter = logging.Formatter('%(asctime)s %(name)s %(message)s')
+    console_logging.setFormatter(formatter)
+    logger.addHandler(console_logging)
     logger.info("Auto trading start at {execute_start_time}".format(execute_start_time=datetime.datetime.now()))
 
     # setup time interval of recursive checking
-    time_check_interval = 5
+    time_check_interval = 30
 
     if code_execute_condition():
         logger.info(
@@ -103,7 +104,8 @@ def main():
             # check whether whether it is inside execution time
             if code_execute_condition():
                 logger.info("The market is closed, current time is {current_time}, "
-                            "will check again in 60 second".format(current_time=datetime.datetime.now().date()))
+                            "will check again in {interval} second".format(current_time=datetime.datetime.now().date(),
+                                                                           interval=time_check_interval))
                 time.sleep(time_check_interval)
             else:
                 logger.info(
