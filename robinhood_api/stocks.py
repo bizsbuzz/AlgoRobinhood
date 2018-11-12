@@ -313,22 +313,22 @@ def find_instrument_data(query):
         return (data)
 
 
-def get_historicals(*inputSymbols, span='week', bounds='regular'):
+def get_historicals(*inputSymbols, span='week', interval=None, bounds='regular'):
     """Represents the data that is used to make the graphs.
     :param inputSymbols: This is a variable length parameter that represents a stock ticker. \
     May be several tickers seperated by commas or a list of tickers.
     :type inputSymbols: str or list
-    :param span: Sets the range of the data to be either 'day', 'week', 'year', or '5year'. Default is 'week'.
+    :param span: Sets the range of the data to be either 'day', 'month', 'week', 'year', or '5year'. Default is 'week'.
     :type span: Optional[str]
     :param bounds: Represents if graph will include extended trading hours or just regular trading hours. Values are 'extended' or 'regular'.
     :type bounds: Optional[str]
     :returns: Returns a list of dictionaries where each dictionary is for a different time. If multiple stocks are provided \
     the historical data is listed one after another.
     """
-    span_check = ['day', 'week', 'year', '5year']
+    span_check = ['day', 'week', 'month', 'year', '5year']
     bounds_check = ['extended', 'regular', 'trading']
     if span not in span_check:
-        print('ERROR: Span must be "day","week","year",or "5year"')
+        print('ERROR: Span must be "day", "week", "month", "year",or "5year"')
         return ([None])
     if bounds not in bounds_check:
         print('ERROR: Bounds must be "extended","regular",or "trading"')
@@ -337,14 +337,18 @@ def get_historicals(*inputSymbols, span='week', bounds='regular'):
         print('ERROR: extended and trading bounds can only be used with a span of "day"')
         return ([None])
 
-    if span == 'day':
-        interval = '5minute'
-    elif span == 'week':
-        interval = '10minute'
-    elif span == 'year':
-        interval = 'day'
-    else:
-        interval = 'week'
+    # if interval is not given then use the default interval
+    if interval is None:
+        if span == 'day':
+            interval = '5minute'
+        elif span == 'month':
+            interval = 'day'
+        elif span == 'week':
+            interval = '10minute'
+        elif span == 'year':
+            interval = 'day'
+        else:
+            interval = 'week'
 
     symbols = helper.inputs_to_set(inputSymbols)
     url = urls.historicals()
@@ -354,7 +358,7 @@ def get_historicals(*inputSymbols, span='week', bounds='regular'):
                'bounds': bounds}
 
     data = helper.request_get(url, 'results', payload)
-    if (data == None or data == [None]):
+    if (data is None or data is [None]):
         return data
     histData = []
     for count, item in enumerate(data):
