@@ -6,6 +6,7 @@ import robinhood_api.account as account
 import robinhood_api.stocks as stocks
 import datetime
 import logging
+import strategy.sell_stock_by_pct as sell_strategy
 
 
 def market_open_condition():
@@ -16,7 +17,8 @@ def market_open_condition():
                         (date.hour >= 9 and date.minute > 30) and
                         (date.hour <= 3 and date.minute <= 59))
 
-    return market_open_time
+    # return market_open_time
+    return True
 
 
 def code_execute_condition():
@@ -25,12 +27,13 @@ def code_execute_condition():
     # define code execution time condition
     code_execute_time = (date.hour >= 22 and date.hour <= 23)
 
-    return code_execute_time
+    # return code_execute_time
+    return True
 
 
 def main():
     # logging
-    logger = logging.getLogger()
+    logger = logging.getLogger(__name__)
     console_logging = logging.StreamHandler()
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s %(name)s %(message)s',
@@ -67,27 +70,32 @@ def main():
                 # check inventory
                 my_stocks = account.build_holdings()
 
-                # check whether the stock in the invertory is purchased today
-                today_purchase_symbol_list = []
-                previous_purchase_symbol_list = []
+                # check whether the stock in the inventory is transacted today
+                today_transacted_symbol_list = []
+                previous_transacted_symbol_list = []
 
                 for symbol in my_stocks.keys():
                     if datetime.datetime.now().date() == my_stocks[symbol]['last_transaction_at'].date():
-                        today_purchase_symbol_list.append(symbol)
+                        today_transacted_symbol_list.append(symbol)
                     else:
-                        previous_purchase_symbol_list.append(symbol)
+                        previous_transacted_symbol_list.append(symbol)
 
-                print("Today purchsed stocks: {stock_list}".format(stock_list=today_purchase_symbol_list))
-                print("Previously purchsed stocks: {stock_list}".format(stock_list=previous_purchase_symbol_list))
+                print("Today transacted stocks: {stock_list}".format(stock_list=today_transacted_symbol_list))
+                print("Previously transacted stocks: {stock_list}".format(stock_list=previous_transacted_symbol_list))
 
                 # execute strategy
                 logger.info("Running strategy here")
 
                 ## TODO
-                # insert strategy here
+                # insert buy strategy here
+
+                ## execute sell operation
+                sell_strategy.sell_by_pct(stock_list=previous_transacted_symbol_list,
+                                          stock_inventory=my_stocks,
+                                          pct_threshold_to_sell=0.02)
 
                 # wait and execute the whole process again
-                logger.info("Strategy is executed. Will start over in {time_check_interval}".format(
+                logger.info("Strategy is executed. Will check again in {time_check_interval}".format(
                     time_check_interval=time_check_interval))
                 time.sleep(time_check_interval)
 
