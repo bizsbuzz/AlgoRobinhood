@@ -17,8 +17,8 @@ def market_open_condition():
                         (date.hour >= 9 and date.minute > 30) and
                         (date.hour <= 3 and date.minute <= 59))
 
-    # return market_open_time
-    return True
+    return market_open_time
+    # return True
 
 
 def code_execute_condition():
@@ -27,8 +27,8 @@ def code_execute_condition():
     # define code execution time condition
     code_execute_time = (date.hour >= 22 and date.hour <= 23)
 
-    # return code_execute_time
-    return True
+    return code_execute_time
+    # return True
 
 
 def main():
@@ -89,7 +89,7 @@ def main():
                 ## TODO
                 # insert buy strategy here
 
-                ## execute sell operation
+                # execute the sell operation
                 sell_strategy.sell_by_pct(stock_list=previous_transacted_symbol_list,
                                           stock_inventory=my_stocks,
                                           pct_threshold_to_sell=0.02)
