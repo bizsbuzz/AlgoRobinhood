@@ -85,8 +85,9 @@ def main():
                     else:
                         previous_transacted_symbol_list.append(symbol)
 
-                print("Today transacted stocks: {stock_list}".format(stock_list=today_transacted_symbol_list))
-                print("Previously transacted stocks: {stock_list}".format(stock_list=previous_transacted_symbol_list))
+                logger.info("Today transacted stocks: {stock_list}".format(stock_list=today_transacted_symbol_list))
+                logger.info(
+                    "Previously transacted stocks: {stock_list}".format(stock_list=previous_transacted_symbol_list))
 
                 # execute strategy
                 logger.info("Running Strategy Algorithm now")
