@@ -11,11 +11,13 @@ import strategy.sell_stock_by_pct as sell_strategy
 
 def market_open_condition():
     date = datetime.datetime.now()
+    market_open_time = datetime.datetime(year=date.year, month=date.month, day=date.day, hour=9, minute=30)
+    market_close_time = datetime.datetime(year=date.year, month=date.month, day=date.day, hour=16, minute=0)
 
     # define market open time condition
     market_open_time = (4 >= date.weekday() >= 0 and
-                        (date.hour >= 9 and date.minute > 30) and
-                        (date.hour <= 3 and date.minute <= 59))
+                        (date > market_open_time) and
+                        (date < market_close_time))
 
     return market_open_time
     # return True
@@ -23,9 +25,11 @@ def market_open_condition():
 
 def code_execute_condition():
     date = datetime.datetime.now()
+    execution_start_time = datetime.datetime(year=date.year, month=date.month, day=date.day, hour=7)
+    execution_end_time = datetime.datetime(year=date.year, month=date.month, day=date.day, hour=16, minute=0, second=1)
 
     # define code execution time condition
-    code_execute_time = (date.hour >= 22 and date.hour <= 23)
+    code_execute_time = (date > execution_start_time and date < execution_end_time)
 
     return code_execute_time
     # return True
@@ -37,7 +41,8 @@ def main():
     console_logging = logging.StreamHandler()
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s %(name)s %(message)s',
-                        filename='./log/myapp.log',
+                        filename='./log/execution_log_{runid}.log'.format(
+                            runid=datetime.datetime.now().strftime("%Y%m%d%H%M%S")),
                         filemode='w')
     formatter = logging.Formatter('%(asctime)s %(name)s %(message)s')
     console_logging.setFormatter(formatter)
@@ -84,7 +89,7 @@ def main():
                 print("Previously transacted stocks: {stock_list}".format(stock_list=previous_transacted_symbol_list))
 
                 # execute strategy
-                logger.info("Running strategy here")
+                logger.info("Running Strategy Algorithm now")
 
                 ## TODO
                 # insert buy strategy here
@@ -95,8 +100,9 @@ def main():
                                           pct_threshold_to_sell=0.02)
 
                 # wait and execute the whole process again
-                logger.info("Strategy is executed. Will check again in {time_check_interval}".format(
-                    time_check_interval=time_check_interval))
+                logger.info(
+                    "Strategy Algorithm is executed. Will execute again in {time_check_interval} seconds".format(
+                        time_check_interval=time_check_interval))
                 time.sleep(time_check_interval)
 
             else:
