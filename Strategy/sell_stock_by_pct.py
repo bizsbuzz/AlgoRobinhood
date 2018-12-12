@@ -17,11 +17,11 @@ def sell_by_pct(stock_list, stock_inventory, pct_threshold_to_sell=0.02):
 
         stock_current_price = float(stock_inventory[stock_symbol]['price'])
         stock_average_buy_price = float(stock_inventory[stock_symbol]['average_buy_price'])
-        stock_holding_units = int(stock_inventory[stock_symbol]['quantity'])
+        stock_holding_units = float(stock_inventory[stock_symbol]['quantity'])
 
         if stock_current_price / stock_average_buy_price - 1 > pct_threshold_to_sell:
 
-            orders.order_sell_market(symbol=stock_symbol, quantity=stock_holding_units)
+            orders.order_sell_market(symbol=stock_symbol, quantity=int(stock_holding_units))
             logger.info(
                 "Stock {stock_symbol} will be sold {units} units at current price: {current_price} with average buying price: {average_buy_price}"
                     .format(stock_symbol=stock_symbol,
