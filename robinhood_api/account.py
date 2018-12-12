@@ -456,6 +456,56 @@ def build_holdings():
     return (holdings)
 
 
+def build_today_holdings_all_positions():
+    """Builds a dictionary of important information regarding all stocks and positions owned by the user for today only.
+    :returns: Returns a dictionary where the keys are the stock tickers and the value is another dictionary \
+    that has the stock price, quantity held, equity, percent change, equity change, type, name, id, pe ratio, \
+    percentage of portfolio, and average buy price.
+    """
+    holdings = {}
+    positions_data = get_all_positions()
+    portfolios_data = profiles.load_portfolio_profile()
+    accounts_data = profiles.load_account_profile()
+    local_timezone = pytz.timezone("US/Eastern")
+
+    if portfolios_data['extended_hours_equity'] is not None:
+        total_equity = max(float(portfolios_data['equity']), float(portfolios_data['extended_hours_equity']))
+    else:
+        total_equity = float(portfolios_data['equity'])
+
+    cash = "{0:.2f}".format(float(accounts_data['cash']) + float(accounts_data['uncleared_deposits']))
+
+    for item in positions_data:
+        instrument_data = stocks.get_instrument_by_url(item['instrument'])
+        symbol = instrument_data['symbol']
+        stock_order = orders.find_orders(symbol=symbol)[0]
+        last_transaction_at = dateutil.parser.parse(stock_order['last_transaction_at']).astimezone(local_timezone)
+        fundamental_data = stocks.get_fundamentals(symbol)[0]
+        price = stocks.get_latest_price(instrument_data['symbol'])[0]
+        quantity = item['quantity']
+        equity = float(item['quantity']) * float(price)
+        equity_change = (float(quantity) * float(price)) - (float(quantity) * float(item['average_buy_price']))
+        percentage = float(item['quantity']) * float(price) * 100 / (float(total_equity) - float(cash))
+        if (float(item['average_buy_price']) == 0.0):
+            percent_change = 0.0
+        else:
+            percent_change = (float(price) - float(item['average_buy_price'])) * 100 / float(item['average_buy_price'])
+
+        holdings[symbol] = ({'price': price})
+        holdings[symbol].update({'quantity': quantity})
+        holdings[symbol].update({'average_buy_price': item['average_buy_price']})
+        holdings[symbol].update({'equity': "{0:.2f}".format(equity)})
+        holdings[symbol].update({'percent_change': "{0:.2f}".format(percent_change)})
+        holdings[symbol].update({'equity_change': "{0:2f}".format(equity_change)})
+        holdings[symbol].update({'type': instrument_data['type']})
+        holdings[symbol].update({'name': stocks.get_name_by_symbol(symbol)})
+        holdings[symbol].update({'id': instrument_data['id']})
+        holdings[symbol].update({'pe_ratio': fundamental_data['pe_ratio']})
+        holdings[symbol].update({'percentage': "{0:.2f}".format(percentage)})
+        holdings[symbol].update({'last_transaction_at': last_transaction_at})
+
+    return ({k: v for k, v in holdings.items() if v['last_transaction_at'].date() >= datetime.datetime.now().date()})
+
 def build_user_profile():
     """Builds a dictionary of important information regarding the user account.
     :returns: Returns a dictionary that has total equity, extended hours equity, cash, and divendend total.

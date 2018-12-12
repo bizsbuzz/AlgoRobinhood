@@ -72,9 +72,11 @@ def main():
     logger.info("Successfully logged in account")
 
     # train recommendation model and make recommendation for today
-
-    if recommendation_toggle == 'y':
+    if recommendation_toggle.upper() == 'Y':
+        logger.info("Running stocks recommendation for today...")
         _ = recommendation.buy_stock_recommend_rating(top=5)
+    else:
+        logger.info("Skip running stocks recommendation for today as specified.")
 
     while True:
 
@@ -82,8 +84,11 @@ def main():
         while market_open_condition():
             # check whether whether it is inside execution time
             if code_execute_condition():
-                # check inventory
+                # check current inventory
                 my_stocks = account.build_holdings()
+
+                # check today all transacted stocks
+                my_stocks_all_positions = account.build_today_holdings_all_positions()
 
                 # check whether the stock in the inventory is transacted today
                 today_transacted_symbol_list = []
@@ -94,6 +99,12 @@ def main():
                         today_transacted_symbol_list.append(symbol)
                     else:
                         previous_transacted_symbol_list.append(symbol)
+
+                for symbol in my_stocks_all_positions:
+                    today_transacted_symbol_list.append(symbol)
+
+                # deduped the list
+                today_transacted_symbol_list = list(set(today_transacted_symbol_list))
 
                 logger.info("Today transacted stocks: {stock_list}".format(stock_list=today_transacted_symbol_list))
                 logger.info(

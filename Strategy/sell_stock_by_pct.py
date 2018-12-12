@@ -20,15 +20,16 @@ def sell_by_pct(stock_list, stock_inventory, pct_threshold_to_sell=0.02):
         stock_holding_units = float(stock_inventory[stock_symbol]['quantity'])
 
         if stock_current_price / stock_average_buy_price - 1 > pct_threshold_to_sell:
-
-            orders.order_sell_market(symbol=stock_symbol, quantity=int(stock_holding_units))
+            orders.order_sell_market(symbol=stock_symbol, quantity=int(stock_holding_units), timeInForce='gfd')
             logger.info(
                 "Stock {stock_symbol} will be sold {units} units at current price: {current_price} with average buying price: {average_buy_price}"
                     .format(stock_symbol=stock_symbol,
                             units=int(stock_holding_units),
                             current_price=round(stock_current_price, 2),
-                            average_buy_price=round(stock_average_buy_price, 2))
-            )
+                            average_buy_price=round(stock_average_buy_price, 2)))
+            logger.info("Stock {stock_symbol} generated revenue ${revenue}".format(
+                stock_symbol=stock_symbol,
+                revenue=round((stock_current_price - stock_average_buy_price) * int(stock_holding_units), 2)))
         else:
             logger.info(
                 "Stock {stock_symbol} will NOT be sold {units} units at current price: {current_price} with average buying price: {average_buy_price}".format(
