@@ -9,7 +9,6 @@ import logging
 import strategy.sell_stock_by_pct as sell_strategy
 import strategy.buy_stock_recommendation_rating as recommendation
 
-
 def market_open_condition():
     date = datetime.datetime.now()
     market_open_time = datetime.datetime(year=date.year, month=date.month, day=date.day, hour=9, minute=30)
@@ -37,6 +36,12 @@ def code_execute_condition():
 
 
 def main():
+
+    # take raw input including account id and password
+    account_id = input("Enter your account id: ")
+    pwd = input("Enter your password: ")
+    recommendation_toggle = input("Do you want to run recommendation code (y/n): ")
+
     # logging
     logger = logging.getLogger(__name__)
     console_logging = logging.StreamHandler()
@@ -48,27 +53,28 @@ def main():
     formatter = logging.Formatter('%(asctime)s %(name)s %(message)s')
     console_logging.setFormatter(formatter)
     logger.addHandler(console_logging)
-    logger.info("Auto trading start at {execute_start_time}".format(execute_start_time=datetime.datetime.now()))
+    logger.info("Auto trading start at {execute_start_time}".format(
+        execute_start_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
     # setup time interval of recursive checking
     time_check_interval = 30
 
     if code_execute_condition():
         logger.info(
-            "The code is inside execution period, current time is {current_time}".format(
-                current_time=datetime.datetime.now()))
+            "The code is inside execution period.")
     else:
         logger.info(
-            "The code is outside execution period, current time is {current_time}".format(
-                current_time=datetime.datetime.now()))
+            "The code is outside execution period.")
         return
 
     # login account
-    auth.login(username='jiongxuan.zheng@gmail.com', password='Zjx134506@1')
+    auth.login(username=account_id, password=pwd)
     logger.info("Successfully logged in account")
 
     # train recommendation model and make recommendation for today
-    _ = recommendation.buy_stock_recommend_rating(top=5)
+
+    if recommendation_toggle == 'y':
+        _ = recommendation.buy_stock_recommend_rating(top=5)
 
     while True:
 
@@ -94,7 +100,7 @@ def main():
                     "Previously transacted stocks: {stock_list}".format(stock_list=previous_transacted_symbol_list))
 
                 # execute strategy
-                logger.info("Running Strategy Algorithm now")
+                logger.info("Running Strategy Algorithm now...")
 
                 ## TODO
                 # insert buy strategy here
@@ -106,33 +112,30 @@ def main():
 
                 # wait and execute the whole process again
                 logger.info(
-                    "Strategy Algorithm is executed. Will execute again in {time_check_interval} seconds".format(
+                    "Strategy Algorithm is executed. Will execute again in {time_check_interval} seconds.".format(
                         time_check_interval=time_check_interval))
                 time.sleep(time_check_interval)
 
             else:
                 logger.info(
-                    "The code is outside execution period, current time is {current_time}".format(
-                        current_time=datetime.datetime.now()))
+                    "The code is outside execution period,.")
                 # logout
                 auth.logout()
-                logger.info("Successfully logged out account")
+                logger.info("Successfully logged out account.")
                 return
 
         else:
             # check whether whether it is inside execution time
             if code_execute_condition():
-                logger.info("The market is closed, current time is {current_time}, "
-                            "will check again in {interval} second".format(current_time=datetime.datetime.now().date(),
-                                                                           interval=time_check_interval))
+                logger.info("The market is closed, will check again in {interval} seconds.".format(
+                    interval=time_check_interval))
                 time.sleep(time_check_interval)
             else:
                 logger.info(
-                    "The code is outside execution period, current time is {current_time}".format(
-                        current_time=datetime.datetime.now()))
+                    "The code is outside execution period.")
                 # logout
                 auth.logout()
-                logger.info("Successfully logged out account")
+                logger.info("Successfully logged out account.")
                 return
 
 
