@@ -366,6 +366,16 @@ def post_symbols_to_watchlist(*inputSymbols, name='Default'):
     return (data)
 
 
+def get_symbols_from_watchlist():
+    """
+
+    :return:
+    """
+
+    return [stocks.get_instrument_by_url(get_watchlist_by_name()[i]['instrument'])['symbol'] for i in
+            range(len(get_watchlist_by_name()))]
+
+
 def delete_symbols_from_watchlist(*inputSymbols, name='Default'):
     """Deletes multiple stock tickers from a watchlist.
     :param inputSymbols: This is a variable length parameter that represents a stock ticker. \

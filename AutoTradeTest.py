@@ -7,6 +7,7 @@ import robinhood_api.stocks as stocks
 import datetime
 import logging
 import strategy.sell_stock_by_pct as sell_strategy
+import strategy.buy_stock_recommendation_rating as recommendation
 
 
 def market_open_condition():
@@ -19,8 +20,8 @@ def market_open_condition():
                         (date > market_open_time) and
                         (date < market_close_time))
 
-    return market_open_time
-    # return True
+    # return market_open_time
+    return True
 
 
 def code_execute_condition():
@@ -31,8 +32,8 @@ def code_execute_condition():
     # define code execution time condition
     code_execute_time = (date > execution_start_time and date < execution_end_time)
 
-    return code_execute_time
-    # return True
+    # return code_execute_time
+    return True
 
 
 def main():
@@ -65,6 +66,9 @@ def main():
     # login account
     auth.login(username='jiongxuan.zheng@gmail.com', password='Zjx134506@1')
     logger.info("Successfully logged in account")
+
+    # train recommendation model and make recommendation for today
+    _ = recommendation.buy_stock_recommend_rating(top=5)
 
     while True:
 
