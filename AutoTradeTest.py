@@ -20,8 +20,8 @@ def market_open_condition():
                         (date > market_open_time) and
                         (date < market_close_time))
 
-    # return market_open_time
-    return True
+    return market_open_time
+    # return True
 
 
 def code_execute_condition():
@@ -32,8 +32,8 @@ def code_execute_condition():
     # define code execution time condition
     code_execute_time = (date > execution_start_time and date < execution_end_time)
 
-    # return code_execute_time
-    return True
+    return code_execute_time
+    # return True
 
 
 def main():
