@@ -74,7 +74,7 @@ def main():
     # train recommendation model and make recommendation for today
     if recommendation_toggle.upper() == 'Y':
         logger.info("Running stocks recommendation for today...")
-        _ = recommendation.buy_stock_recommend_rating(top=5)
+        _ = recommendation.buy_stock_recommend_rating(top=5, perf_threshold=0.8)
     else:
         logger.info("Skip running stocks recommendation for today as specified.")
 

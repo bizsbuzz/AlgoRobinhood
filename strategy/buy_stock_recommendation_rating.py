@@ -119,9 +119,10 @@ def stock_rating(symbol, perf_window=5, label_pct_cutoff=0.05, historic_window=3
     return {symbol: [y_forecast_pred[0][0], accuracy]}
 
 
-def buy_stock_recommend_rating(top=5):
+def buy_stock_recommend_rating(top=5, perf_threshold=0.8):
     """
     :param top: integer of showing top recommended stock in the log, ranked from high to low prob of price going up
+    :param perf_threshold: double of only looking at models with performance >= the value
     :return: a list of top recommended {symbol: [model_forecast_prob, model_accuracy]}
     """
     # get watch list
@@ -134,10 +135,13 @@ def buy_stock_recommend_rating(top=5):
     for symbol in watchlist_symbols:
         rating.update(stock_rating(symbol=symbol))
 
-    rating_sorted = sorted(rating.items(), key=lambda x: x[1][0], reverse=True)
+    rating_filter = {k: v for k, v in rating.items() if v[1] >= perf_threshold}
+    rating_sorted = sorted(rating_filter.items(), key=lambda x: x[1][0], reverse=True)
 
     logger.info("Today's top {top} recommended stocks are: ".format(top=top))
     for i in rating_sorted[:top]:
-        logger.info("Symbol {symbol}: Rating {prob}%".format(symbol=i[0], prob=round(i[1][0] * 100, 2)))
+        logger.info(
+            "Symbol {symbol}: Rating {prob}% - Accuracy {accuracy}%".format(symbol=i[0], prob=round(i[1][0] * 100, 2),
+                                                                            accuracy=round(i[1][1] * 100, 2)))
 
     return rating_sorted
