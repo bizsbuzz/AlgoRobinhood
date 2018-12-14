@@ -141,7 +141,8 @@ def buy_stock_recommend_rating(top=5, perf_threshold=0.8):
     logger.info("Today's top {top} recommended stocks are: ".format(top=top))
     for i in rating_sorted[:top]:
         logger.info(
-            "Symbol {symbol}: Rating {prob}% - Accuracy {accuracy}%".format(symbol=i[0], prob=round(i[1][0] * 100, 2),
-                                                                            accuracy=round(i[1][1] * 100, 2)))
+            "Symbol {symbol}: Rating {prob}% - Model Accuracy {accuracy}%".format(symbol=i[0],
+                                                                                  prob=round(i[1][0] * 100, 2),
+                                                                                  accuracy=round(i[1][1] * 100, 2)))
 
     return rating_sorted
