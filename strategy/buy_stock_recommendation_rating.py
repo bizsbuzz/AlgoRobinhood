@@ -112,7 +112,8 @@ def stock_rating(symbol, perf_window=5, label_pct_cutoff=0.05, historic_window=3
     y_forecast_pred = model.predict(X_forecast)
 
     logger.info(
-        "Symbol {symbol} is trained and validated with accuracy {accuracy}%, forecasted to price up by {pct}% over the {days} days with predicted probability of {forecast_prob}%".format(
+        "Symbol {symbol} is trained and validated with accuracy {accuracy}%, forecasted to price up by {pct}% over the "
+        "{days} days with predicted probability of {forecast_prob}%".format(
             symbol=symbol, accuracy=round(accuracy * 100, 2), pct=round(label_pct_cutoff * 100, 2), days=perf_window,
             forecast_prob=round(y_forecast_pred[0][0] * 100, 2)))
 
