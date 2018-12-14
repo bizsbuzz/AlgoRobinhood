@@ -39,4 +39,4 @@ Thumbs.db
 
 # others #
 ######################
-.ipynb
+*.ipynb
