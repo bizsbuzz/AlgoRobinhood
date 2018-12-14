@@ -87,7 +87,7 @@ def main():
                 # check current inventory
                 my_stocks = account.build_holdings()
 
-                # check today all transacted stocks
+                # check today all transacted/sold stocks
                 my_stocks_all_positions = account.build_today_holdings_all_positions()
 
                 # check whether the stock in the inventory is transacted today
