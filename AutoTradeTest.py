@@ -119,7 +119,7 @@ def main():
                                           stock_inventory=my_stocks,
                                           pct_threshold_to_sell=0.02)
 
-                # execute the sell operation
+                # execute the buy operation
                 buy_strategy.buy_stop_loss_by_pct(stock_list=previous_transacted_symbol_list,
                                           stock_inventory=my_stocks,
                                           pct_threshold_to_buy=0.05)
