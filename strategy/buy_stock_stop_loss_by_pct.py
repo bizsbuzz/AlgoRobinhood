@@ -1,7 +1,6 @@
 import logging
 import robinhood_api.orders as orders
 import robinhood_api.account as account
-import math
 
 
 def buy_stop_loss_by_pct(stock_list, stock_inventory, pct_threshold_to_buy=0.05):
