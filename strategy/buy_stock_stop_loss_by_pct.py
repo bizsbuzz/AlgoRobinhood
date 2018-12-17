@@ -27,7 +27,7 @@ def buy_stop_loss_by_pct(stock_list, stock_inventory, pct_threshold_to_buy=0.05)
         buying_quantity = int(stock_holding_units / 2.0)
         total_purchased_price = stock_holding_units / 2.0 * stock_current_price
 
-        if stock_current_price / stock_average_buy_price - 1 < (-1.0 * pct_threshold_to_buy):
+        if stock_current_price / stock_average_buy_price - 1 < (-1.0 * abs(pct_threshold_to_buy)):
             if total_purchased_price < available_cash:
                 orders.order_buy_market(symbol=stock_symbol, quantity=buying_quantity, timeInForce='gfd')
                 logger.info("Stock {stock_symbol} with units {units} current loss is {pct}% at current price: "
