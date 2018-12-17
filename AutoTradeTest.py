@@ -8,6 +8,7 @@ import datetime
 import logging
 import strategy.sell_stock_by_pct as sell_strategy
 import strategy.buy_stock_recommendation_rating as recommendation
+import strategy.buy_stock_stop_loss_by_pct as buy_strategy
 
 def market_open_condition():
     date = datetime.datetime.now()
@@ -113,13 +114,15 @@ def main():
                 # execute strategy
                 logger.info("Running Strategy Algorithm now...")
 
-                ## TODO
-                # insert buy strategy here
-
                 # execute the sell operation
                 sell_strategy.sell_by_pct(stock_list=previous_transacted_symbol_list,
                                           stock_inventory=my_stocks,
                                           pct_threshold_to_sell=0.02)
+
+                # execute the sell operation
+                buy_strategy.buy_stop_loss_by_pct(stock_list=previous_transacted_symbol_list,
+                                          stock_inventory=my_stocks,
+                                          pct_threshold_to_buy=0.05)
 
                 # wait and execute the whole process again
                 logger.info(
