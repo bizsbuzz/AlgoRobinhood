@@ -10,6 +10,7 @@ import strategy.sell_stock_by_pct as sell_strategy
 import strategy.buy_stock_recommendation_rating as recommendation
 import strategy.buy_stock_stop_loss_by_pct as buy_strategy
 
+
 def market_open_condition():
     date = datetime.datetime.now()
     market_open_time = datetime.datetime(year=date.year, month=date.month, day=date.day, hour=9, minute=30)
@@ -37,7 +38,6 @@ def code_execute_condition():
 
 
 def main():
-
     # take raw input including account id and password
     account_id = input("Enter your account id: ")
     pwd = input("Enter your password: ")
@@ -85,50 +85,59 @@ def main():
         while market_open_condition():
             # check whether whether it is inside execution time
             if code_execute_condition():
-                # check current inventory
-                my_stocks = account.build_holdings()
 
-                # check today all transacted/sold stocks
-                my_stocks_all_positions = account.build_today_holdings_all_positions()
+                try:
+                    # check current inventory
+                    my_stocks = account.build_holdings()
 
-                # check whether the stock in the inventory is transacted today
-                today_transacted_symbol_list = []
-                previous_transacted_symbol_list = []
+                    # check today all transacted/sold stocks
+                    my_stocks_all_positions = account.build_today_holdings_all_positions()
 
-                for symbol in my_stocks.keys():
-                    if datetime.datetime.now().date() == my_stocks[symbol]['last_transaction_at'].date():
+                    # check whether the stock in the inventory is transacted today
+                    today_transacted_symbol_list = []
+                    previous_transacted_symbol_list = []
+
+                    for symbol in my_stocks.keys():
+                        if datetime.datetime.now().date() == my_stocks[symbol]['last_transaction_at'].date():
+                            today_transacted_symbol_list.append(symbol)
+                        else:
+                            previous_transacted_symbol_list.append(symbol)
+
+                    for symbol in my_stocks_all_positions:
                         today_transacted_symbol_list.append(symbol)
-                    else:
-                        previous_transacted_symbol_list.append(symbol)
 
-                for symbol in my_stocks_all_positions:
-                    today_transacted_symbol_list.append(symbol)
+                    # deduped the list
+                    today_transacted_symbol_list = list(set(today_transacted_symbol_list))
 
-                # deduped the list
-                today_transacted_symbol_list = list(set(today_transacted_symbol_list))
+                    logger.info("Today transacted stocks: {stock_list}".format(stock_list=today_transacted_symbol_list))
+                    logger.info(
+                        "Previously transacted stocks: {stock_list}".format(stock_list=previous_transacted_symbol_list))
 
-                logger.info("Today transacted stocks: {stock_list}".format(stock_list=today_transacted_symbol_list))
-                logger.info(
-                    "Previously transacted stocks: {stock_list}".format(stock_list=previous_transacted_symbol_list))
+                    # execute strategy
+                    logger.info("Running Strategy Algorithm now...")
 
-                # execute strategy
-                logger.info("Running Strategy Algorithm now...")
+                    # execute the sell operation
+                    sell_strategy.sell_by_pct(stock_list=previous_transacted_symbol_list,
+                                              stock_inventory=my_stocks,
+                                              pct_threshold_to_sell=0.02)
 
-                # execute the sell operation
-                sell_strategy.sell_by_pct(stock_list=previous_transacted_symbol_list,
-                                          stock_inventory=my_stocks,
-                                          pct_threshold_to_sell=0.02)
+                    # execute the buy operation
+                    buy_strategy.buy_stop_loss_by_pct(stock_list=previous_transacted_symbol_list,
+                                                      stock_inventory=my_stocks,
+                                                      pct_threshold_to_buy=0.05)
 
-                # execute the buy operation
-                buy_strategy.buy_stop_loss_by_pct(stock_list=previous_transacted_symbol_list,
-                                          stock_inventory=my_stocks,
-                                          pct_threshold_to_buy=0.05)
+                    # wait and execute the whole process again
+                    logger.info(
+                        "Strategy Algorithm is executed. Will execute again in {time_check_interval} seconds.".format(
+                            time_check_interval=time_check_interval))
+                    time.sleep(time_check_interval)
 
-                # wait and execute the whole process again
-                logger.info(
-                    "Strategy Algorithm is executed. Will execute again in {time_check_interval} seconds.".format(
-                        time_check_interval=time_check_interval))
-                time.sleep(time_check_interval)
+                except:
+                    logger.info(
+                        "Strategy Algorithm has error. Will execute again in {time_check_interval} seconds.".format(
+                            time_check_interval=time_check_interval))
+                    time.sleep(time_check_interval)
+                    continue
 
             else:
                 logger.info(
