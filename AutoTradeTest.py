@@ -60,6 +60,10 @@ def main():
     # setup time interval of recursive checking
     time_check_interval = 30
 
+    # setup the maximum error try
+    max_error_try = 10
+    current_error_try = 0
+
     if code_execute_condition():
         logger.info(
             "The code is inside execution period.")
@@ -133,11 +137,21 @@ def main():
                     time.sleep(time_check_interval)
 
                 except:
-                    logger.info(
-                        "Strategy Algorithm has error. Will execute again in {time_check_interval} seconds.".format(
-                            time_check_interval=time_check_interval))
-                    time.sleep(time_check_interval)
-                    continue
+                    current_error_try = current_error_try + 1
+                    if current_error_try <= max_error_try:
+                        logger.info(
+                            "Algorithm has error. Will execute again in {time_check_interval} seconds.".format(
+                                time_check_interval=time_check_interval))
+                        time.sleep(time_check_interval)
+                        continue
+                    else:
+                        logger.info("The algorithm has tried more than {try_times} times with errors."
+                                    " The execution will terminate".format(try_times=max_error_try))
+                        # logout
+                        auth.logout()
+                        logger.info("Successfully logged out account.")
+                        return
+
 
             else:
                 logger.info(
