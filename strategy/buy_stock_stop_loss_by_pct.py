@@ -24,8 +24,8 @@ def buy_stop_loss_by_pct(stock_list, stock_inventory, pct_threshold_to_buy=0.05)
         available_cash = float(account.build_user_profile()['cash'])
 
         # determine the quantity to buy to stop loss
-        buying_quantity = int(stock_holding_units / 2.0)
-        total_purchased_price = stock_holding_units / 2.0 * stock_current_price
+        buying_quantity = max(int(stock_holding_units / 2.0), 1)
+        total_purchased_price = float(buying_quantity) * stock_current_price
 
         if stock_current_price / stock_average_buy_price - 1 < (-1.0 * abs(pct_threshold_to_buy)):
             if total_purchased_price < available_cash:
