@@ -15,6 +15,7 @@ def get_all_positions(info=None):
     :returns: Returns a list of dictionaries of key/value pairs for each ticker. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
     """
+    # comments
     url = urls.positions()
     data = helper.request_get(url, 'pagination')
 
