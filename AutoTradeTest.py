@@ -70,7 +70,7 @@ def main():
     else:
         logger.info(
             "The code is outside execution period.")
-        return
+        # return
 
     # login account
     auth.login(username=account_id, password=pwd)
