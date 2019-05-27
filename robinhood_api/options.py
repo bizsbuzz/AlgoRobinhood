@@ -2,7 +2,7 @@ import robinhood_api.helper as helper
 import robinhood_api.urls as urls
 
 
-def get_aggregate_positions(info=None):
+def get_aggregate_positions(login, info=None):
     """Collapses all option orders for a stock into a single dictionary.
     :param info: Will filter the results to get a specific value.
     :type info: Optional[str]
@@ -10,11 +10,11 @@ def get_aggregate_positions(info=None):
     a list of strings is returned where the strings are the value of the key that matches info.
     """
     url = urls.aggregate()
-    data = helper.request_get(url, 'pagination')
+    data = helper.request_get(login, url, 'pagination')
     return (helper.filter(data, info))
 
 
-def get_market_options(info=None):
+def get_market_options(login, info=None):
     """Returns a list of all options.
     :param info: Will filter the results to get a specific value.
     :type info: Optional[str]
@@ -22,12 +22,12 @@ def get_market_options(info=None):
     a list of strings is returned where the strings are the value of the key that matches info.
     """
     url = urls.option_orders()
-    data = helper.request_get(url, 'pagination')
+    data = helper.request_get(login, url, 'pagination')
 
     return (helper.filter(data, info))
 
 
-def get_all_option_positions(info=None):
+def get_all_option_positions(login, info=None):
     """Returns all option positions ever held for the account.
     :param info: Will filter the results to get a specific value.
     :type info: Optional[str]
@@ -35,11 +35,11 @@ def get_all_option_positions(info=None):
     a list of strings is returned where the strings are the value of the key that matches info.
     """
     url = urls.option_positions()
-    data = helper.request_get(url, 'pagination')
+    data = helper.request_get(login, url, 'pagination')
     return (helper.filter(data, info))
 
 
-def get_open_option_positions(info=None):
+def get_open_option_positions(login, info=None):
     """Returns all open option positions for the account.
     :param info: Will filter the results to get a specific value.
     :type info: Optional[str]
@@ -48,12 +48,12 @@ def get_open_option_positions(info=None):
     """
     url = urls.option_positions()
     payload = {'nonzero': 'True'}
-    data = helper.request_get(url, 'pagination', payload)
+    data = helper.request_get(login, url, 'pagination', payload)
 
     return (helper.filter(data, info))
 
 
-def get_chains(symbol, info=None):
+def get_chains(login, symbol, info=None):
     """Returns the chain information of an option.
     :param symbol: The ticker of the stock.
     :type symbol: str
@@ -69,12 +69,12 @@ def get_chains(symbol, info=None):
         return None
 
     url = urls.chains(symbol)
-    data = helper.request_get(url)
+    data = helper.request_get(login, url)
 
     return (helper.filter(data, info))
 
 
-def get_available_option_calls(symbol, info=None):
+def get_available_option_calls(login, symbol, info=None):
     """Returns a list of all available option calls for a stock.
     :param symbol: The ticker of the stock.
     :type symbol: str
@@ -90,16 +90,16 @@ def get_available_option_calls(symbol, info=None):
         return [None]
 
     url = urls.option_instruments()
-    payload = {'chain_id': helper.id_for_chain(symbol),
+    payload = {'chain_id': helper.id_for_chain(login, symbol),
                'state': 'active',
                'tradability': 'tradable',
                'type': 'call'}
-    data = helper.request_get(url, 'pagination', payload)
+    data = helper.request_get(login, url, 'pagination', payload)
 
     return (helper.filter(data, info))
 
 
-def get_available_option_puts(symbol, info=None):
+def get_available_option_puts(login, symbol, info=None):
     """Returns a list of all available option puts for a stock.
     :param symbol: The ticker of the stock.
     :type symbol: str
@@ -115,16 +115,16 @@ def get_available_option_puts(symbol, info=None):
         return [None]
 
     url = urls.option_instruments()
-    payload = {'chain_id': helper.id_for_chain(symbol),
+    payload = {'chain_id': helper.id_for_chain(login, symbol),
                'state': 'active',
                'tradability': 'tradable',
                'type': 'put'}
-    data = helper.request_get(url, 'pagination', payload)
+    data = helper.request_get(login, url, 'pagination', payload)
 
     return (helper.filter(data, info))
 
 
-def find_options_for_stock_by_expiration(symbol, expirationDate, optionType='both', info=None):
+def find_options_for_stock_by_expiration(login, symbol, expirationDate, optionType='both', info=None):
     """Returns a list of all the option orders that match the seach parameters
     :param symbol: The ticker of the stock.
     :type symbol: str
@@ -145,16 +145,16 @@ def find_options_for_stock_by_expiration(symbol, expirationDate, optionType='bot
         return [None]
 
     if (optionType == 'call'):
-        calls = get_available_option_calls(symbol)
+        calls = get_available_option_calls(login, symbol)
         listOfCalls = [item for item in calls if item["expiration_date"] == expirationDate]
         mergedList = listOfCalls
     elif (optionType == 'put'):
-        puts = get_available_option_puts(symbol)
+        puts = get_available_option_puts(login, symbol)
         listOfPuts = [item for item in puts if item["expiration_date"] == expirationDate]
         mergedList = listOfPuts
     else:
-        calls = get_available_option_calls(symbol)
-        puts = get_available_option_puts(symbol)
+        calls = get_available_option_calls(login, symbol)
+        puts = get_available_option_puts(login, symbol)
         listOfCalls = [item for item in calls if item["expiration_date"] == expirationDate]
         listOfPuts = [item for item in puts if item["expiration_date"] == expirationDate]
         mergedList = listOfCalls + listOfPuts
@@ -166,7 +166,7 @@ def find_options_for_stock_by_expiration(symbol, expirationDate, optionType='bot
     return (helper.filter(mergedList, info))
 
 
-def find_options_for_stock_by_strike(symbol, strike, optionType='both', info=None):
+def find_options_for_stock_by_strike(login, symbol, strike, optionType='both', info=None):
     """Returns a list of all the option orders that match the seach parameters
     :param symbol: The ticker of the stock.
     :type symbol: str
@@ -187,16 +187,16 @@ def find_options_for_stock_by_strike(symbol, strike, optionType='both', info=Non
         return [None]
 
     if (optionType == 'call'):
-        calls = get_available_option_calls(symbol)
+        calls = get_available_option_calls(login, symbol)
         listOfCalls = [item for item in calls if float(item["strike_price"]) == float(strike)]
         mergedList = listOfCalls
     elif (optionType == 'put'):
-        puts = get_available_option_puts(symbol)
+        puts = get_available_option_puts(login, symbol)
         listOfPuts = [item for item in puts if float(item["strike_price"]) == float(strike)]
         mergedList = listOfPuts
     else:
-        calls = get_available_option_calls(symbol)
-        puts = get_available_option_puts(symbol)
+        calls = get_available_option_calls(login, symbol)
+        puts = get_available_option_puts(login, symbol)
         listOfCalls = [item for item in calls if float(item["strike_price"]) == float(strike)]
         listOfPuts = [item for item in puts if float(item["strike_price"]) == float(strike)]
         mergedList = listOfCalls + listOfPuts
@@ -208,7 +208,8 @@ def find_options_for_stock_by_strike(symbol, strike, optionType='both', info=Non
     return (helper.filter(mergedList, info))
 
 
-def find_options_for_stock_by_expiration_and_strike(symbol, expirationDate, strike, optionType='both', info=None):
+def find_options_for_stock_by_expiration_and_strike(login, symbol, expirationDate, strike, optionType='both',
+                                                    info=None):
     """Returns a list of all the option orders that match the seach parameters
     :param symbol: The ticker of the stock.
     :type symbol: str
@@ -231,18 +232,18 @@ def find_options_for_stock_by_expiration_and_strike(symbol, expirationDate, stri
         return [None]
 
     if (optionType == 'call'):
-        calls = get_available_option_calls(symbol)
+        calls = get_available_option_calls(login, symbol)
         listOfCalls = [item for item in calls if
                        item["expiration_date"] == expirationDate and float(item["strike_price"]) == float(strike)]
         mergedList = listOfCalls
     elif (optionType == 'put'):
-        puts = get_available_option_puts(symbol)
+        puts = get_available_option_puts(login, symbol)
         listOfPuts = [item for item in puts if
                       item["expiration_date"] == expirationDate and float(item["strike_price"]) == float(strike)]
         mergedList = listOfPuts
     else:
-        calls = get_available_option_calls(symbol)
-        puts = get_available_option_puts(symbol)
+        calls = get_available_option_calls(login, symbol)
+        puts = get_available_option_puts(login, symbol)
         listOfCalls = [item for item in calls if
                        item["expiration_date"] == expirationDate and float(item["strike_price"]) == float(strike)]
         listOfPuts = [item for item in puts if
@@ -256,7 +257,8 @@ def find_options_for_stock_by_expiration_and_strike(symbol, expirationDate, stri
     return (helper.filter(mergedList, info))
 
 
-def find_options_for_list_of_stocks_by_expiration_date(*inputSymbols, expirationDate, optionType='both', info=None):
+def find_options_for_list_of_stocks_by_expiration_date(login, *inputSymbols, expirationDate, optionType='both',
+                                                       info=None):
     """Returns a list of all the option orders that match the seach parameters
     :param inputSymbols: This is a variable length parameter that represents a stock ticker. \
     May be several tickers seperated by commas or a list of tickers.
@@ -281,17 +283,17 @@ def find_options_for_list_of_stocks_by_expiration_date(*inputSymbols, expiration
     url = urls.option_instruments()
     for symbol in symbols:
         if (optionType == 'put' or optionType == 'call'):
-            payload = {'chain_id': helper.id_for_chain(symbol),
+            payload = {'chain_id': helper.id_for_chain(login, symbol),
                        'expiration_date': expirationDate,
                        'state': 'active',
                        'tradability': 'tradable',
                        'type': optionType}
         else:
-            payload = {'chain_id': helper.id_for_chain(symbol),
+            payload = {'chain_id': helper.id_for_chain(login, symbol),
                        'expiration_date': expirationDate,
                        'state': 'active',
                        'tradability': 'tradable'}
-        otherData = helper.request_get(url, 'pagination', payload)
+        otherData = helper.request_get(login, url, 'pagination', payload)
         for item in otherData:
             if item['expiration_date'] == expirationDate:
                 data.append(item)
@@ -303,7 +305,7 @@ def find_options_for_list_of_stocks_by_expiration_date(*inputSymbols, expiration
     return (helper.filter(data, info))
 
 
-def get_list_market_data(*inputSymbols, info=None):
+def get_list_market_data(login, *inputSymbols, expirationDate, info=None):
     """Returns a list of option market data for several stock tickers.
     :param inputSymbols: This is a variable length parameter that represents a stock ticker. \
     May be several tickers seperated by commas or a list of tickers.
@@ -318,7 +320,7 @@ def get_list_market_data(*inputSymbols, info=None):
     data = []
     url = urls.option_instruments()
     for symbol in symbols:
-        payload = {'chain_id': helper.id_for_chain(symbol),
+        payload = {'chain_id': helper.id_for_chain(login, symbol),
                    'expiration_date': expirationDate,
                    'state': 'active',
                    'tradability': 'tradable'}
@@ -328,13 +330,13 @@ def get_list_market_data(*inputSymbols, info=None):
 
     for id in ids:
         url = urls.marketdata(id)
-        otherData = helper.request_get(url)
+        otherData = helper.request_get(login, url)
         data.append(otherData)
 
     return (helper.filter(data, info))
 
 
-def get_option_market_data_by_id(id, info=None):
+def get_option_market_data_by_id(login, id, info=None):
     """Returns the option market data for a stock, including the greeks,
     open interest, change of profit, and adjusted mark price.
     :param id: The id of the stock.
@@ -345,12 +347,12 @@ def get_option_market_data_by_id(id, info=None):
     If info parameter is provided, the value of the key that matches info is extracted.
     """
     url = urls.marketdata(id)
-    data = helper.request_get(url)
+    data = helper.request_get(login, url)
 
     return (helper.filter(data, info))
 
 
-def get_option_market_data(symbol, expirationDate, strike, optionType, info=None):
+def get_option_market_data(login, symbol, expirationDate, strike, optionType, info=None):
     """Returns the option market data for the stock option, including the greeks,
     open interest, change of profit, and adjusted mark price.
     :param symbol: The ticker of the stock.
@@ -373,14 +375,14 @@ def get_option_market_data(symbol, expirationDate, strike, optionType, info=None
         print(message)
         return [None]
 
-    optionID = helper.id_for_option(symbol, expirationDate, strike, optionType)
+    optionID = helper.id_for_option(login, symbol, expirationDate, strike, optionType)
     url = urls.marketdata(optionID)
-    data = helper.request_get(url)
+    data = helper.request_get(login, url)
 
     return (helper.filter(data, info))
 
 
-def get_option_instrument_data_by_id(id, info=None):
+def get_option_instrument_data_by_id(login, id, info=None):
     """Returns the option instrument information.
     :param id: The id of the stock.
     :type id: str
@@ -390,11 +392,11 @@ def get_option_instrument_data_by_id(id, info=None):
     If info parameter is provided, the value of the key that matches info is extracted.
     """
     url = urls.option_instruments(id)
-    data = helper.request_get(url)
+    data = helper.request_get(login, url)
     return (helper.filter(data, info))
 
 
-def get_option_instrument_data(symbol, expirationDate, strike, optionType, info=None):
+def get_option_instrument_data(login, symbol, expirationDate, strike, optionType, info=None):
     """Returns the option instrument data for the stock option.
     :param symbol: The ticker of the stock.
     :type symbol: str
@@ -416,14 +418,14 @@ def get_option_instrument_data(symbol, expirationDate, strike, optionType, info=
         print(message)
         return [None]
 
-    optionID = helper.id_for_option(symbol, expirationDate, strike, optionType)
+    optionID = helper.id_for_option(login, symbol, expirationDate, strike, optionType)
     url = urls.option_instruments(optionID)
-    data = helper.request_get(url)
+    data = helper.request_get(login, url)
 
     return (helper.filter(data, info))
 
 
-def get_option_historicals(symbol, expirationDate, strike, optionType, span='week'):
+def get_option_historicals(login, symbol, expirationDate, strike, optionType, span='week'):
     """Returns the data that is used to make the graphs.
     :param symbol: The ticker of the stock.
     :type symbol: str
@@ -459,11 +461,11 @@ def get_option_historicals(symbol, expirationDate, strike, optionType, span='wee
     else:
         interval = 'week'
 
-    optionID = helper.id_for_option(symbol, expirationDate, strike, optionType)
+    optionID = helper.id_for_option(login, symbol, expirationDate, strike, optionType)
 
     url = urls.option_historicals(optionID)
     payload = {'span': span,
                'interval': interval}
-    data = helper.request_get(url, 'regular', payload)
+    data = helper.request_get(login, url, 'regular', payload)
 
     return (data)

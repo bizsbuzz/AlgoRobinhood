@@ -7,6 +7,9 @@ def login_url():
     return ('https://api.robinhood.com/oauth2/token/')
 
 
+def logout_url():
+    return ('https://api.robinhood.com/oauth2/revoke_token/')
+
 ### Profiles
 
 def account_profile():

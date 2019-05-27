@@ -4,7 +4,7 @@ import robinhood_api.stocks as stocks
 import robinhood_api.profiles as profiles
 
 
-def get_all_orders(info=None):
+def get_all_orders(login, info=None):
     """Returns a list of all the orders that have been processed for the account.
     :param info: Will filter the results to get a specific value.
     :type info: Optional[str]
@@ -12,11 +12,11 @@ def get_all_orders(info=None):
     a list of strings is returned where the strings are the value of the key that matches info.
     """
     url = urls.orders()
-    data = helper.request_get(url, 'pagination')
+    data = helper.request_get(login, url, 'pagination')
     return (helper.filter(data, info))
 
 
-def get_all_open_orders(info=None):
+def get_all_open_orders(login, info=None):
     """Returns a list of all the orders that are currently open.
     :param info: Will filter the results to get a specific value.
     :type info: Optional[str]
@@ -24,32 +24,32 @@ def get_all_open_orders(info=None):
     a list of strings is returned where the strings are the value of the key that matches info.
     """
     url = urls.orders()
-    data = helper.request_get(url, 'pagination')
+    data = helper.request_get(login, url, 'pagination')
 
     data = [item for item in data if item['cancel'] is not None]
 
     return (helper.filter(data, info))
 
 
-def get_order_info(orderID):
+def get_order_info(login, orderID):
     """Returns the information for a single order.
     :param orderID: The ID associated with the order. Can be found using get_all_orders(info=None) or get_all_orders(info=None).
     :type orderID: str
     :returns: Returns a list of dictionaries of key/value pairs for the order.
     """
     url = urls.orders(orderID)
-    data = helper.request_get(url)
+    data = helper.request_get(login, url)
     return (data)
 
 
-def find_orders(**arguments):
+def find_orders(login, **arguments):
     """Returns a list of orders that match the keyword parameters.
     :param arguments: Variable length of keyword arguments. EX. find_orders(symbol='FB',cancel=None,quantity=1)
     :type arguments: str
     :returns: Returns a list of orders.
     """
     url = urls.orders()
-    data = helper.request_get(url, 'pagination')
+    data = helper.request_get(login, url, 'pagination')
 
     if (len(arguments) == 0):
         return (data)
@@ -58,7 +58,7 @@ def find_orders(**arguments):
         item['quantity'] = str(int(float(item['quantity'])))
 
     if 'symbol' in arguments.keys():
-        arguments['instrument'] = stocks.get_instruments_by_symbols(arguments['symbol'], info='url')[0]
+        arguments['instrument'] = stocks.get_instruments_by_symbols(login, arguments['symbol'], info='url')[0]
         del arguments['symbol']
 
     if 'quantity' in arguments.keys():
@@ -79,38 +79,38 @@ def find_orders(**arguments):
     return (list_of_orders)
 
 
-def cancel_all_open_orders():
+def cancel_all_open_orders(login, ):
     """Cancels all open orders.
     :returns: The list of orders taht were cancelled.
     """
     url = urls.orders()
-    items = helper.request_get(url, 'pagination')
+    items = helper.request_get(login, url, 'pagination')
 
     items = [item['id'] for item in items if item['cancel'] is not None]
 
     for item in items:
         cancel_url = urls.cancel(item)
-        data = helper.request_post(cancel_url)
+        data = helper.request_post(login, cancel_url)
 
     print('All Orders Cancelled')
     return (items)
 
 
-def cancel_order(orderID):
+def cancel_order(login, orderID):
     """Cancels a specific order.
     :param orderID: The ID associated with the order. Can be found using get_all_orders(info=None) or get_all_orders(info=None).
     :type orderID: str
     :returns: Returns the order information for the order that was cancelled.
     """
     url = urls.cancel(orderID)
-    data = helper.request_post(url)
+    data = helper.request_post(login, url)
 
     if data:
         print('Order ' + orderID + ' cancelled')
     return (data)
 
 
-def order_buy_market(symbol, quantity, timeInForce='gtc'):
+def order_buy_market(login, symbol, quantity, timeInForce='gtc'):
     """Submits a market order to be executed immediately.
     :param symbol: The stock ticker of the stock to purchase.
     :type symbol: str
@@ -130,8 +130,8 @@ def order_buy_market(symbol, quantity, timeInForce='gtc'):
         return None
 
     payload = {
-        'account': profiles.load_account_profile(info='url'),
-        'instrument': stocks.get_instruments_by_symbols(symbol, info='url')[0],
+        'account': profiles.load_account_profile(login, info='url'),
+        'instrument': stocks.get_instruments_by_symbols(login, symbol, info='url')[0],
         'symbol': symbol,
         'price': float(stocks.get_latest_price(symbol)[0]),
         'quantity': quantity,
@@ -143,12 +143,12 @@ def order_buy_market(symbol, quantity, timeInForce='gtc'):
     }
 
     url = urls.orders()
-    data = helper.request_post(url, payload)
+    data = helper.request_post(login, url, payload)
 
     return (data)
 
 
-def order_buy_limit(symbol, quantity, limitPrice, timeInForce='gtc'):
+def order_buy_limit(login, symbol, quantity, limitPrice, timeInForce='gtc'):
     """Submits a limit order to be executed once a certain price is reached.
     :param symbol: The stock ticker of the stock to purchase.
     :type symbol: str
@@ -171,8 +171,8 @@ def order_buy_limit(symbol, quantity, limitPrice, timeInForce='gtc'):
         return None
 
     payload = {
-        'account': profiles.load_account_profile(info='url'),
-        'instrument': stocks.get_instruments_by_symbols(symbol, info='url')[0],
+        'account': profiles.load_account_profile(login, info='url'),
+        'instrument': stocks.get_instruments_by_symbols(login, symbol, info='url')[0],
         'symbol': symbol,
         'price': limitPrice,
         'quantity': quantity,
@@ -184,12 +184,12 @@ def order_buy_limit(symbol, quantity, limitPrice, timeInForce='gtc'):
     }
 
     url = urls.orders()
-    data = helper.request_post(url, payload)
+    data = helper.request_post(login, url, payload)
 
     return (data)
 
 
-def order_buy_stop_loss(symbol, quantity, stopPrice, timeInForce='gtc'):
+def order_buy_stop_loss(login, symbol, quantity, stopPrice, timeInForce='gtc'):
     """Submits a stop order to be turned into a market order once a certain stop price is reached.
     :param symbol: The stock ticker of the stock to purchase.
     :type symbol: str
@@ -217,8 +217,8 @@ def order_buy_stop_loss(symbol, quantity, stopPrice, timeInForce='gtc'):
         return (None)
 
     payload = {
-        'account': profiles.load_account_profile(info='url'),
-        'instrument': stocks.get_instruments_by_symbols(symbol, info='url')[0],
+        'account': profiles.load_account_profile(login, info='url'),
+        'instrument': stocks.get_instruments_by_symbols(login, symbol, info='url')[0],
         'symbol': symbol,
         'price': stopPrice,
         'quantity': quantity,
@@ -230,12 +230,12 @@ def order_buy_stop_loss(symbol, quantity, stopPrice, timeInForce='gtc'):
     }
 
     url = urls.orders()
-    data = helper.request_post(url, payload)
+    data = helper.request_post(login, url, payload)
 
     return (data)
 
 
-def order_buy_stop_limit(symbol, quantity, limitPrice, stopPrice, timeInForce='gtc'):
+def order_buy_stop_limit(login, symbol, quantity, limitPrice, stopPrice, timeInForce='gtc'):
     """Submits a stop order to be turned into a limit order once a certain stop price is reached.
     :param symbol: The stock ticker of the stock to purchase.
     :type symbol: str
@@ -266,8 +266,8 @@ def order_buy_stop_limit(symbol, quantity, limitPrice, stopPrice, timeInForce='g
         return (None)
 
     payload = {
-        'account': profiles.load_account_profile(info='url'),
-        'instrument': stocks.get_instruments_by_symbols(symbol, info='url')[0],
+        'account': profiles.load_account_profile(login, info='url'),
+        'instrument': stocks.get_instruments_by_symbols(login, symbol, info='url')[0],
         'symbol': symbol,
         'price': limitPrice,
         'quantity': quantity,
@@ -279,12 +279,12 @@ def order_buy_stop_limit(symbol, quantity, limitPrice, stopPrice, timeInForce='g
     }
 
     url = urls.orders()
-    data = helper.request_post(url, payload)
+    data = helper.request_post(login, url, payload)
 
     return (data)
 
 
-def order_sell_market(symbol, quantity, timeInForce='gtc'):
+def order_sell_market(login, symbol, quantity, timeInForce='gtc'):
     """Submits a market order to be executed immediately.
     :param symbol: The stock ticker of the stock to sell.
     :type symbol: str
@@ -304,8 +304,8 @@ def order_sell_market(symbol, quantity, timeInForce='gtc'):
         return None
 
     payload = {
-        'account': profiles.load_account_profile(info='url'),
-        'instrument': stocks.get_instruments_by_symbols(symbol, info='url')[0],
+        'account': profiles.load_account_profile(login, info='url'),
+        'instrument': stocks.get_instruments_by_symbols(login, symbol, info='url')[0],
         'symbol': symbol,
         'price': float(stocks.get_latest_price(symbol)[0]),
         'quantity': quantity,
@@ -317,12 +317,12 @@ def order_sell_market(symbol, quantity, timeInForce='gtc'):
     }
 
     url = urls.orders()
-    data = helper.request_post(url, payload)
+    data = helper.request_post(login, url, payload)
 
     return (data)
 
 
-def order_sell_limit(symbol, quantity, limitPrice, timeInForce='gtc'):
+def order_sell_limit(login, symbol, quantity, limitPrice, timeInForce='gtc'):
     """Submits a limit order to be executed once a certain price is reached.
     :param symbol: The stock ticker of the stock to sell.
     :type symbol: str
@@ -345,8 +345,8 @@ def order_sell_limit(symbol, quantity, limitPrice, timeInForce='gtc'):
         return None
 
     payload = {
-        'account': profiles.load_account_profile(info='url'),
-        'instrument': stocks.get_instruments_by_symbols(symbol, info='url')[0],
+        'account': profiles.load_account_profile(login, info='url'),
+        'instrument': stocks.get_instruments_by_symbols(login, symbol, info='url')[0],
         'symbol': symbol,
         'price': limitPrice,
         'quantity': quantity,
@@ -358,12 +358,12 @@ def order_sell_limit(symbol, quantity, limitPrice, timeInForce='gtc'):
     }
 
     url = urls.orders()
-    data = helper.request_post(url, payload)
+    data = helper.request_post(login, url, payload)
 
     return (data)
 
 
-def order_sell_stop_loss(symbol, quantity, stopPrice, timeInForce='gtc'):
+def order_sell_stop_loss(login, symbol, quantity, stopPrice, timeInForce='gtc'):
     """Submits a stop order to be turned into a market order once a certain stop price is reached.
     :param symbol: The stock ticker of the stock to sell.
     :type symbol: str
@@ -391,8 +391,8 @@ def order_sell_stop_loss(symbol, quantity, stopPrice, timeInForce='gtc'):
         return (None)
 
     payload = {
-        'account': profiles.load_account_profile(info='url'),
-        'instrument': stocks.get_instruments_by_symbols(symbol, info='url')[0],
+        'account': profiles.load_account_profile(login, info='url'),
+        'instrument': stocks.get_instruments_by_symbols(login, symbol, info='url')[0],
         'symbol': symbol,
         'price': stopPrice,
         'quantity': quantity,
@@ -404,12 +404,12 @@ def order_sell_stop_loss(symbol, quantity, stopPrice, timeInForce='gtc'):
     }
 
     url = urls.orders()
-    data = helper.request_post(url, payload)
+    data = helper.request_post(login, url, payload)
 
     return (data)
 
 
-def order_sell_stop_limit(symbol, quantity, limitPrice, stopPrice, timeInForce='gtc'):
+def order_sell_stop_limit(login, symbol, quantity, limitPrice, stopPrice, timeInForce='gtc'):
     """Submits a stop order to be turned into a limit order once a certain stop price is reached.
     :param symbol: The stock ticker of the stock to sell.
     :type symbol: str
@@ -440,8 +440,8 @@ def order_sell_stop_limit(symbol, quantity, limitPrice, stopPrice, timeInForce='
         return (None)
 
     payload = {
-        'account': profiles.load_account_profile(info='url'),
-        'instrument': stocks.get_instruments_by_symbols(symbol, info='url')[0],
+        'account': profiles.load_account_profile(login, info='url'),
+        'instrument': stocks.get_instruments_by_symbols(login, symbol, info='url')[0],
         'symbol': symbol,
         'price': limitPrice,
         'quantity': quantity,
@@ -453,12 +453,12 @@ def order_sell_stop_limit(symbol, quantity, limitPrice, stopPrice, timeInForce='
     }
 
     url = urls.orders()
-    data = helper.request_post(url, payload)
+    data = helper.request_post(login, url, payload)
 
     return (data)
 
 
-def order(symbol, quantity, orderType, limitPrice, stopPrice, trigger, side, timeInForce):
+def order(login, symbol, quantity, orderType, limitPrice, stopPrice, trigger, side, timeInForce):
     """A generic order function. All parameters must be supplied.
     :param symbol: The stock ticker of the stock to sell.
     :type symbol: str
@@ -490,8 +490,8 @@ def order(symbol, quantity, orderType, limitPrice, stopPrice, trigger, side, tim
         return None
 
     payload = {
-        'account': profiles.load_account_profile(info='url'),
-        'instrument': stocks.get_instruments_by_symbols(symbol, info='url')[0],
+        'account': profiles.load_account_profile(login, info='url'),
+        'instrument': stocks.get_instruments_by_symbols(login, symbol, info='url')[0],
         'symbol': symbol,
         'price': limitPrice,
         'quantity': quantity,
@@ -503,6 +503,6 @@ def order(symbol, quantity, orderType, limitPrice, stopPrice, trigger, side, tim
     }
 
     url = urls.orders()
-    data = helper.request_post(url, payload)
+    data = helper.request_post(login, url, payload)
 
     return (data)

@@ -2,7 +2,7 @@ import robinhood_api.helper as helper
 import robinhood_api.urls as urls
 
 
-def get_top_movers(direction, info=None):
+def get_top_movers(login, direction, info=None):
     """Returns a list of the top movers up or down for the day.
     :param direction: The direction of movement either 'up' or 'down'
     :type direction: str
@@ -23,12 +23,12 @@ def get_top_movers(direction, info=None):
 
     url = urls.movers()
     payload = {'direction': direction}
-    data = helper.request_get(url, 'pagination', payload)
+    data = helper.request_get(login, url, 'pagination', payload)
 
     return (helper.filter(data, info))
 
 
-def get_markets(info=None):
+def get_markets(login, info=None):
     """Returns a list of available markets.
     :param info: Will filter the results to get a specific value.
     :type info: Optional[str]
@@ -36,11 +36,11 @@ def get_markets(info=None):
     a list of strings is returned where the strings are the value of the key that matches info.
     """
     url = urls.markets()
-    data = helper.request_get(url, 'pagination')
+    data = helper.request_get(login, url, 'pagination')
     return (helper.filter(data, info))
 
 
-def get_currency_pairs(info=None):
+def get_currency_pairs(login, info=None):
     """Returns currency pairs
     :param info: Will filter the results to get a specific value.
     :type info: Optional[str]
@@ -49,5 +49,5 @@ def get_currency_pairs(info=None):
     """
 
     url = urls.currency()
-    data = helper.request_get(url, 'results')
+    data = helper.request_get(login, url, 'results')
     return (helper.filter(data, info))
