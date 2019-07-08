@@ -313,7 +313,7 @@ def find_instrument_data(login, query):
         return (data)
 
 
-def get_historicals(login, *inputSymbols, span='week', interval=None, bounds='regular'):
+def get_historicals(login, inputSymbols, span='week', interval=None, bounds='regular'):
     """Represents the data that is used to make the graphs.
     :param inputSymbols: This is a variable length parameter that represents a stock ticker. \
     May be several tickers seperated by commas or a list of tickers.
