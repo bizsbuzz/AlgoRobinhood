@@ -373,7 +373,7 @@ def get_symbols_from_watchlist(login):
     :return:
     """
 
-    return [stocks.get_instrument_by_url(get_watchlist_by_name(login)[i]['instrument'])['symbol'] for i in
+    return [stocks.get_instrument_by_url(login, get_watchlist_by_name(login)[i]['instrument'])['symbol'] for i in
             range(len(get_watchlist_by_name(login)))]
 
 

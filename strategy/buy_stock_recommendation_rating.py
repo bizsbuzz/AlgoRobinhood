@@ -13,7 +13,7 @@ from keras.layers import Dense
 import robinhood_api.account as account
 
 
-def stock_rating(symbol, perf_window=5, label_pct_cutoff=0.05, historic_window=30, seed=7):
+def stock_rating(login, symbol, perf_window=5, label_pct_cutoff=0.05, historic_window=30, seed=7):
     """
     :param symbol: a string of symbol name
     :param perf_window: an integer of performance window that is used to define target label
@@ -29,7 +29,7 @@ def stock_rating(symbol, perf_window=5, label_pct_cutoff=0.05, historic_window=3
     numpy.random.seed(seed)
 
     # get data
-    price = stocks.get_historicals([symbol], span="year", interval="day", bounds='regular')
+    price = stocks.get_historicals(login, [symbol], span="year", interval="day", bounds='regular')
     price_data = pd.DataFrame.from_dict(price)
     price_data[['close_price', 'high_price', 'low_price', 'open_price', 'volume']] = price_data[
         ['close_price', 'high_price', 'low_price', 'open_price', 'volume']].apply(pd.to_numeric)
@@ -120,8 +120,9 @@ def stock_rating(symbol, perf_window=5, label_pct_cutoff=0.05, historic_window=3
     return {symbol: [y_forecast_pred[0][0], accuracy]}
 
 
-def buy_stock_recommend_rating(top=5, perf_threshold=0.8):
+def buy_stock_recommend_rating(login, top=5, perf_threshold=0.8):
     """
+    :param login: login instance
     :param top: integer of showing top recommended stock in the log, ranked from high to low prob of price going up
     :param perf_threshold: double of only looking at models with performance >= the value
     :return: a list of top recommended {symbol: [model_forecast_prob, model_accuracy]}
@@ -130,11 +131,11 @@ def buy_stock_recommend_rating(top=5, perf_threshold=0.8):
 
     logger = logging.getLogger(__name__)
 
-    watchlist_symbols = account.get_symbols_from_watchlist()
+    watchlist_symbols = account.get_symbols_from_watchlist(login=login)
 
     rating = {}
     for symbol in watchlist_symbols:
-        rating.update(stock_rating(symbol=symbol))
+        rating.update(stock_rating(login=login, symbol=symbol))
 
     rating_filter = {k: v for k, v in rating.items() if v[1] >= perf_threshold}
     rating_sorted = sorted(rating_filter.items(), key=lambda x: x[1][0], reverse=True)

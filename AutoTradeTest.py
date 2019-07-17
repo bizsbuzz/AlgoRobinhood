@@ -73,14 +73,15 @@ def main():
         # return
 
     # login account
-    auth.login(username=account_id, password=pwd)
+    my_trader = auth.Robinhood()
+    my_trader.login(username=account_id, password=pwd)
     logger.info("Successfully logged in account")
 
     # train recommendation model and make recommendation for today
     try:
         if recommendation_toggle.upper() == 'Y':
             logger.info("Running stocks recommendation for today...")
-            _ = recommendation.buy_stock_recommend_rating(top=5, perf_threshold=0.8)
+            _ = recommendation.buy_stock_recommend_rating(login=my_trader, top=5, perf_threshold=0.8)
         else:
             logger.info("Skip running stocks recommendation for today as specified.")
     except:
@@ -95,10 +96,10 @@ def main():
 
                 try:
                     # check current inventory
-                    my_stocks = account.build_holdings()
+                    my_stocks = account.build_holdings(login=my_trader)
 
                     # check today all transacted/sold stocks
-                    my_stocks_all_positions = account.build_today_holdings_all_positions()
+                    my_stocks_all_positions = account.build_today_holdings_all_positions(login=my_trader)
 
                     # check whether the stock in the inventory is transacted today
                     today_transacted_symbol_list = []
@@ -151,7 +152,7 @@ def main():
                         logger.info("The algorithm has tried more than {try_times} times with errors."
                                     " The execution will terminate".format(try_times=max_error_try))
                         # logout
-                        auth.logout()
+                        my_trader.logout()
                         logger.info("Successfully logged out account.")
                         return
 
@@ -160,7 +161,7 @@ def main():
                 logger.info(
                     "The code is outside execution period,.")
                 # logout
-                auth.logout()
+                my_trader.logout()
                 logger.info("Successfully logged out account.")
                 return
 
@@ -174,7 +175,7 @@ def main():
                 logger.info(
                     "The code is outside execution period.")
                 # logout
-                auth.logout()
+                my_trader.logout()
                 logger.info("Successfully logged out account.")
                 return
 

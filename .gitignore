@@ -40,3 +40,7 @@ Thumbs.db
 # others #
 ######################
 *.ipynb
+/archive/*.*
+/data/*.*
+/flask/*.*
+/kivy/*.*
