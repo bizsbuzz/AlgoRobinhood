@@ -45,3 +45,4 @@ data/
 flask/
 kivy/
 .idea/
+*.csv
