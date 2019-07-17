@@ -44,3 +44,4 @@ archive/
 data/
 flask/
 kivy/
+.idea/
