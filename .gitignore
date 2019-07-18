@@ -46,3 +46,4 @@ flask/
 kivy/
 .idea/
 *.csv
+*.json
