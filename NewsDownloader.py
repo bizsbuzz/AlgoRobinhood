@@ -112,8 +112,10 @@ def main():
         execute_start_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
     try:
-        _ = download_news(login=my_trader, symbol_list=list(set(watchlist_symbols + save_sp500_tickers())),
-                          date=datetime.datetime.now())
+        news_pd = download_news(login=my_trader, symbol_list=list(set(watchlist_symbols + save_sp500_tickers())),
+                                date=datetime.datetime.now())
+        logger.info("There are {total_news} total news for {company} companies downloaded.".format(
+            total_news=news_pd.shape[0], company=len(news_pd['symbol'].unique())))
     except:
         logger.info("News downloader has error. Skip running.")
 
