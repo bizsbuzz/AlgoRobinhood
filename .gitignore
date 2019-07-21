@@ -44,6 +44,9 @@ archive/
 data/
 flask/
 kivy/
+pyqt5_ui/
+dist/
+build/
 .idea/
 *.csv
 *.json

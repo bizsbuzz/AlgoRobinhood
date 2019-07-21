@@ -1,4 +1,3 @@
-
 from functools import wraps
 import requests
 
@@ -77,7 +76,7 @@ def id_for_group(login, symbol):
         print(message)
         return None
 
-    url = 'https://api.robinhood.com/options/chains/' + id_for_chain(symbol) + '/'
+    url = 'https://api.robinhood.com/options/chains/' + id_for_chain(login, symbol) + '/'
     data = request_get(login, url)
     return (data['underlying_instruments'][0]['id'])
 
@@ -95,7 +94,7 @@ def id_for_option(login, symbol, expirationDate, strike, optionType='both'):
     :returns:  A string that represents the stocks option id.
     """
     symbol = symbol.upper()
-    payload = {'chain_id': id_for_chain(symbol),
+    payload = {'chain_id': id_for_chain(login, symbol),
                'state': 'active',
                'tradability': 'tradable',
                'type': optionType}

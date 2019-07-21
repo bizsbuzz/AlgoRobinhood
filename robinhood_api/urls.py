@@ -62,20 +62,20 @@ def news(symbol):
     return ('https://api.robinhood.com/midlands/news/{}/?'.format(symbol))
 
 
-def popularity(symbol):
-    return ('https://api.robinhood.com/instruments/{}/popularity/'.format(helper.id_for_stock(symbol)))
+def popularity(login, symbol):
+    return ('https://api.robinhood.com/instruments/{}/popularity/'.format(helper.id_for_stock(login, symbol)))
 
 
 def quotes():
     return ('https://api.robinhood.com/quotes/')
 
 
-def ratings(symbol):
-    return ('https://api.robinhood.com/midlands/ratings/{}/'.format(helper.id_for_stock(symbol)))
+def ratings(login, symbol):
+    return ('https://api.robinhood.com/midlands/ratings/{}/'.format(helper.id_for_stock(login, symbol)))
 
 
-def splits(symbol):
-    return ('https://api.robinhood.com/instruments/{}/splits/'.format(helper.id_for_stock(symbol)))
+def splits(login, symbol):
+    return ('https://api.robinhood.com/instruments/{}/splits/'.format(helper.id_for_stock(login, symbol)))
 
 
 ### account
@@ -170,8 +170,8 @@ def aggregate():
     return ('https://api.robinhood.com/options/aggregate_positions/')
 
 
-def chains():
-    return ('https://api.robinhood.com/options/chains/{}/'.format(helper.id_for_chain(symbol)))
+def chains(login, symbol):
+    return ('https://api.robinhood.com/options/chains/{}/'.format(helper.id_for_chain(login, symbol)))
 
 
 def option_historicals(id):

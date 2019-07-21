@@ -172,7 +172,7 @@ def get_ratings(login, symbol, info=None):
         print(message)
         return None
 
-    url = urls.ratings(symbol)
+    url = urls.ratings(login, symbol)
     data = helper.request_get(login, url)
     if (len(data['ratings']) == 0):
         return (data)
@@ -199,7 +199,7 @@ def get_popularity(login, symbol, info=None):
         print(message)
         return None
 
-    url = urls.popularity(symbol)
+    url = urls.popularity(login, symbol)
     data = helper.request_get(login, url)
 
     return (helper.filter(data, info))
